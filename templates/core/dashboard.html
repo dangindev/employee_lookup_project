@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1>Chào mừng, {{ user.get_full_name|default:user.username }}!</h1>
+            <p>Vai trò: <span class="badge bg-primary">{{ user.get_role_display }}</span></p>
+            <p>Loại tài khoản: {{ user.get_account_type_display }}</p>
+            
+            <div class="mt-4">
+                <a href="{% url 'employees:lookup' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>Tra cứu nhân viên
+                </a>
+                {% if user.is_staff and user.role in 'admin_corporation,admin_company' %}
+                    <a href="{% url 'admin:index' %}" class="btn btn-secondary btn-lg ms-2">
+                        <i class="fas fa-cog me-2"></i>Quản trị hệ thống
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

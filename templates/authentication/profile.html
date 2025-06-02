@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Thông tin cá nhân - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Thông tin cá nhân</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Tên đăng nhập:</strong></td>
+                            <td>{{ user.username }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Họ tên:</strong></td>
+                            <td>{{ user.get_full_name|default:"Chưa cập nhật" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td>{{ user.email|default:"Chưa cập nhật" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Loại tài khoản:</strong></td>
+                            <td><span class="badge bg-info">{{ user.get_account_type_display }}</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vai trò:</strong></td>
+                            <td><span class="badge bg-primary">{{ user.get_role_display }}</span></td>
+                        </tr>
+                        {% if user.company %}
+                        <tr>
+                            <td><strong>Công ty:</strong></td>
+                            <td>{{ user.company.name }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
