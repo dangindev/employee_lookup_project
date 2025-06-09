@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -8,9 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '.vercel.app']
 
 # Application definition
 INSTALLED_APPS = [
@@ -35,6 +36,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -65,14 +67,10 @@ WSGI_APPLICATION = 'employee_lookup.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DATABASE_NAME'),
-        'USER': config('DATABASE_USER'),
-        'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': config('DATABASE_HOST'),
-        'PORT': config('DATABASE_PORT'),
-    }
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL'),
+        conn_max_age=600
+    )
 }
 
 # Password validation
@@ -121,74 +119,8 @@ LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/auth/login/'
 
-# LDAP Configuration từ .env
-LDAP_ENABLED = config('LDAP_ENABLED', default=True, cast=bool)
-
-if LDAP_ENABLED:
-    import ldap
-    from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
-    
-    # LDAP Server Settings
-    AUTH_LDAP_SERVER_URI = config('LDAP_SERVER_URI', default='')
-    AUTH_LDAP_BIND_DN = config('LDAP_BIND_DN', default='')
-    AUTH_LDAP_BIND_PASSWORD = config('LDAP_BIND_PASSWORD', default='')
-    
-    # User Search
-    AUTH_LDAP_USER_SEARCH = LDAPSearch(
-        config('LDAP_USER_SEARCH_BASE', default=''),
-        ldap.SCOPE_SUBTREE,
-        config('LDAP_USER_SEARCH_FILTER', default='(sAMAccountName=%(user)s)')
-    )
-    
-    # Group Settings
-    AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
-        config('LDAP_GROUP_SEARCH_BASE', default=''),
-        ldap.SCOPE_SUBTREE,
-        config('LDAP_GROUP_SEARCH_FILTER', default='(objectClass=group)')
-    )
-    AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType()
-    
-    # User Attribute Mapping
-    AUTH_LDAP_USER_ATTR_MAP = {
-        "first_name": config('LDAP_ATTR_FIRST_NAME', default='givenName'),
-        "last_name": config('LDAP_ATTR_LAST_NAME', default='sn'),
-        "email": config('LDAP_ATTR_EMAIL', default='mail'),
-    }
-    
-    # User Flags
-    AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-        "is_active": f"CN=Domain Users,CN=Users,{config('LDAP_GROUP_SEARCH_BASE', default='')}",
-    }
-    
-    # Always update user from LDAP
-    AUTH_LDAP_ALWAYS_UPDATE_USER = config('LDAP_ALWAYS_UPDATE_USER', default=True, cast=bool)
-    
-    # Cache settings
-    AUTH_LDAP_CACHE_TIMEOUT = config('LDAP_CACHE_TIMEOUT', default=3600, cast=int)
-    
-    # Global options for LDAP
-    AUTH_LDAP_CONNECTION_OPTIONS = {
-        ldap.OPT_REFERRALS: 0,
-        ldap.OPT_DEBUG_LEVEL: 0,
-        ldap.OPT_NETWORK_TIMEOUT: config('LDAP_CONNECTION_TIMEOUT', default=10, cast=int),
-    }
-    
-    # Authentication backends với LDAP
-    AUTHENTICATION_BACKENDS = [
-        'authentication.backends.CustomLDAPBackend',
-        'authentication.backends.SystemAccountBackend',
-        'django.contrib.auth.backends.ModelBackend',
-    ]
-else:
-    # Authentication backends không có LDAP
-    AUTHENTICATION_BACKENDS = [
-        'authentication.backends.SystemAccountBackend',
-        'django.contrib.auth.backends.ModelBackend',
-    ]
-
-# Session settings
-SESSION_COOKIE_AGE = 8 * 60 * 60  # 8 hours
-SESSION_SAVE_EVERY_REQUEST = True
+# Disable LDAP in production
+LDAP_ENABLED = False
 
 # Security settings for production
 if not DEBUG:
@@ -196,6 +128,11 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # Logging
 LOGGING = {
