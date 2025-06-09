@@ -1,27 +1,12 @@
 {
     "version": 2,
-    "builds": [
+    "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput",
+    "outputDirectory": "staticfiles",
+    "framework": "django",
+    "rewrites": [
         {
-            "src": "api/index.py",
-            "use": "@vercel/python"
-        },
-        {
-            "src": "staticfiles/**",
-            "use": "@vercel/static"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/static/(.*)",
-            "dest": "/staticfiles/$1"
-        },
-        {
-            "src": "/media/(.*)",
-            "dest": "/media/$1"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "api/index.py"
+            "source": "/(.*)",
+            "destination": "/api/index.py"
         }
     ],
     "env": {
