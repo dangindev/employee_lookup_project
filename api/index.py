@@ -1,6 +1,8 @@
 import os
-from django.core.asgi import get_asgi_application
+from django.core.wsgi import get_wsgi_application
+from whitenoise import WhiteNoise
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'employee_lookup.settings')
 
-application = get_asgi_application() 
+application = get_wsgi_application()
+application = WhiteNoise(application, root='staticfiles/') 

@@ -16,8 +16,16 @@
             "dest": "/staticfiles/$1"
         },
         {
+            "src": "/media/(.*)",
+            "dest": "/media/$1"
+        },
+        {
             "src": "/(.*)",
             "dest": "api/index.py"
         }
-    ]
+    ],
+    "env": {
+        "PYTHONPATH": ".",
+        "DJANGO_SETTINGS_MODULE": "employee_lookup.settings"
+    }
 } 
