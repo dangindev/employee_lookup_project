@@ -1,6 +1,5 @@
 Django==4.2.7
 psycopg2-binary==2.9.9
-django-auth-ldap==4.5.0
 python-decouple==3.8
 django-crispy-forms==2.1
 crispy-bootstrap5==2023.10
@@ -10,3 +9,4 @@ dj-database-url==2.1.0
 gunicorn==21.2.0
 python-dotenv==1.0.0
 uvicorn==0.27.1
+ldap3==2.9.1
